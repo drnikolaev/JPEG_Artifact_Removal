@@ -19,13 +19,13 @@ import torch.nn.functional as F
 
 gpu_id = 0
 NUM_EPOCHS = 40
-display = visualizer(port=8094)
+# display = visualizer(port=8094)
 report_feq = 10
 
-train_set = MyDataLoader(hr='../data/train_face/HR/', lr='../data/train_face/HR_JPEG/10/')
-train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=2, shuffle=True)
+train_set = MyDataLoader(hr_dir='/media/snikolaev/4EVO/Artifacts/MAXI/', lr_dir='/media/snikolaev/4EVO/Artifacts/MIDI/')
+train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=1, shuffle=True)
 
-netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=1, norm_type=None, act_type='leakyrelu', \
+netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=2, norm_type=None, act_type='leakyrelu', \
                         mode='CNA', res_scale=1, upsample_mode='upconv')
 netD = Discriminator()
 
@@ -75,9 +75,9 @@ for epoch in range(1, NUM_EPOCHS):
             vis_low = (lr*255)[0].detach().cpu().data.numpy()
             vis_recon = (hr_hat*255)[0].detach().cpu().data.numpy()
 
-            display.plot_img_255(vis_high, win=1, caption='high')
-            display.plot_img_255(vis_low,  win=2, caption='low')
-            display.plot_img_255(vis_recon,  win=3, caption='sr')
+            # display.plot_img_255(vis_high, win=1, caption='high')
+            # display.plot_img_255(vis_low,  win=2, caption='low')
+            # display.plot_img_255(vis_recon,  win=3, caption='sr')
 
         print(epoch, step)
         step += 1
