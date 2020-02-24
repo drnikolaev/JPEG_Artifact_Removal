@@ -20,7 +20,7 @@ import re
 #     ])
 
 class MyDataLoader(Dataset):
-    def __init__(self, hr_dir, lr_dir):
+    def __init__(self, hr_dir, lr_dir, infer=False):
         super(MyDataLoader, self).__init__()
 
         # n_imgs = 0
@@ -32,8 +32,16 @@ class MyDataLoader(Dataset):
         #     hr_list.append(str(hr_dir)+str(i)+'.png')
         #     lr_list.append(str(lr_dir)+str(i)+'.jpg')
 
-        hr_list = []
         lr_list = []
+        hr_list = []
+        self.infer = infer
+        if infer:
+            for file in glob.glob(str(lr_dir) + '*.jpg'):
+                lr_list.append(file)
+            self.lr_list = lr_list
+            self.hr_list = hr_list
+            return
+
         for file in glob.glob(str(lr_dir) + '*.jpg'):
             hr_file = re.sub(r'MIDI', 'MAXI', file)
             hr_file = re.sub(r'\(1\)\.jpg', r'(2).jpg', hr_file)
@@ -48,6 +56,14 @@ class MyDataLoader(Dataset):
         self.lr_list = lr_list
         
     def __getitem__(self, idx):
+
+        tt = ToTensor()
+        if self.infer:
+            hr = None
+            lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
+            lr = tt(lr)
+            return lr, hr
+
         # hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))
         # lr = self.transform(Image.open(self.lr_list[idx]).convert(mode='RGB'))
         hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
@@ -56,7 +72,6 @@ class MyDataLoader(Dataset):
         scale = 2
         lsize = 300
         lcc = CenterCrop((lsize, lsize))
-        tt = ToTensor()
         ratio = float(hr.width)/float(lr.width)
         hsize = lsize * scale
         hccr = CenterCrop((hsize * ratio, hsize * ratio))

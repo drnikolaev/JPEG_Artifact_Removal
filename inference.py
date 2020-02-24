@@ -26,21 +26,21 @@ if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_r
 
 gpu_id = 3
 
-netG = torch.load('models/G_280000.pt').to(gpu_id)
+netG = torch.load('models/G_5000.pt').to(gpu_id)
 
-train_set = MyDataLoader(lap_hr_dir='../data/test_face_patch/HR_PNG/', lap_lp_dir='../data/test_face_patch/HR_JPEG/10/')
-train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=1, shuffle=True)
+inf_set = MyDataLoader(hr_dir='/home/snikolaev/Artifacts/PNG/', lr_dir='/home/snikolaev/Artifacts/MIDI/', infer=True)
+inf_loader = DataLoader(dataset=inf_set, num_workers=4, batch_size=1, shuffle=False)
 
 cnt = 0
 
-for idx, (lr, hr) in enumerate(train_loader):
-    lr, hr = lr.to(gpu_id), hr.to(gpu_id)
+for idx, (lr, hr) in enumerate(inf_loader):
+    lr, hr = lr.to(gpu_id)#, hr.to(gpu_id)
     
     hr_hat = netG(lr)
     hr_hat = (F.tanh(hr_hat) + 1) / 2
     
-    save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
-    save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    # save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    # save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
     save_image(hr_hat, 'HR'+str(q)+'_HR_results/sr/'+str(cnt)+'.jpg', nrow=1, padding=0)
     
     cnt += 1
