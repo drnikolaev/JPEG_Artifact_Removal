@@ -7,17 +7,17 @@ import glob
 import pdb
 import re
 
-def toTensor_transform():
-    return Compose([
-        CenterCrop((200, 200)),
-        ToTensor()
-    ])
-
-def toTensor_transform2():
-    return Compose([
-        CenterCrop((400, 400)),
-        ToTensor()
-    ])
+# def toTensor_transform():
+#     return Compose([
+#         CenterCrop((200, 200)),
+#         ToTensor()
+#     ])
+#
+# def toTensor_transform2():
+#     return Compose([
+#         CenterCrop((400, 400)),
+#         ToTensor()
+#     ])
 
 class MyDataLoader(Dataset):
     def __init__(self, hr_dir, lr_dir):
@@ -42,8 +42,8 @@ class MyDataLoader(Dataset):
                 hr_list.append(hr_file)
                 lr_list.append(file)
 
-        self.transform = toTensor_transform()
-        self.transform2 = toTensor_transform2()
+        # self.transform = toTensor_transform()
+        # self.transform2 = toTensor_transform2()
         self.hr_list = hr_list
         self.lr_list = lr_list
         
@@ -53,10 +53,23 @@ class MyDataLoader(Dataset):
         hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
         lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
 
-        print(hr.width, float(hr.width)/float(lr.width), lr.width)
+        scale = 2
+        lsize = 300
+        lcc = CenterCrop((lsize, lsize))
+        tt = ToTensor()
+        ratio = float(hr.width)/float(lr.width)
+        hsize = lsize * scale
+        hccr = CenterCrop((hsize * ratio, hsize * ratio))
+        rsz = Resize((hsize))
 
-        hr = self.transform2(hr)
-        lr = self.transform(lr)
+
+        # print(hr.width, float(hr.width)/float(lr.width), float(hr.height)/float(lr.height), lr.width)
+
+        # hr = self.transform2(hr)
+        # lr = self.transform(lr)
+
+        lr = tt(lcc(lr))
+        hr = tt(rsz(hccr(hr)))
 
         return lr, hr
 
