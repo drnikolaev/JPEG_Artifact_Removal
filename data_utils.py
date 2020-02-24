@@ -9,13 +9,13 @@ import re
 
 def toTensor_transform():
     return Compose([
-        CenterCrop((400, 400)),
+        CenterCrop((200, 200)),
         ToTensor()
     ])
 
 def toTensor_transform2():
     return Compose([
-        CenterCrop((800, 800)),
+        CenterCrop((400, 400)),
         ToTensor()
     ])
 
@@ -48,8 +48,16 @@ class MyDataLoader(Dataset):
         self.lr_list = lr_list
         
     def __getitem__(self, idx):
-        hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))
-        lr = self.transform(Image.open(self.lr_list[idx]).convert(mode='RGB'))
+        # hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))
+        # lr = self.transform(Image.open(self.lr_list[idx]).convert(mode='RGB'))
+        hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
+        lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
+
+        print(hr.width, float(hr.width)/float(lr.width), lr.width)
+
+        hr = self.transform2(hr)
+        lr = self.transform(lr)
+
         return lr, hr
 
     def __len__(self):
