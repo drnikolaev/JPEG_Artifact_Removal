@@ -29,7 +29,7 @@ report_feq = 10
 train_set = MyDataLoader(hr_dir='/home/snikolaev/Artifacts/MAXI/', lr_dir='/home/snikolaev/Artifacts/MIDI/')
 train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=4, shuffle=True)
 
-netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=2, norm_type=None, act_type='leakyrelu', \
+netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=1, norm_type=None, act_type='leakyrelu', \
                         mode='CNA', res_scale=1, upsample_mode='upconv')
 netD = Discriminator()
 

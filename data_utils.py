@@ -57,21 +57,22 @@ class MyDataLoader(Dataset):
         
     def __getitem__(self, idx):
 
+        scale = 1 #2
+        lsize = 300 if self.infer else 200
+        lcc = CenterCrop((lsize, lsize))
+
         tt = ToTensor()
         if self.infer:
             hr = None
             lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
-            lr = tt(lr)
-            return lr, hr
+            lr = tt(lcc(lr))
+            return lr, self.lr_list[idx]
 
         # hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))
         # lr = self.transform(Image.open(self.lr_list[idx]).convert(mode='RGB'))
         hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
         lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
 
-        scale = 2
-        lsize = 300
-        lcc = CenterCrop((lsize, lsize))
         ratio = float(hr.width)/float(lr.width)
         hsize = lsize * scale
         hccr = CenterCrop((hsize * ratio, hsize * ratio))
@@ -89,7 +90,7 @@ class MyDataLoader(Dataset):
         return lr, hr
 
     def __len__(self):
-        return len(self.hr_list)
+        return len(self.lr_list)
 
 '''
 train_set = MyDataLoader()

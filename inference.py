@@ -19,10 +19,13 @@ import os
 
 q = 10
 
-if not os.path.exists('HR'+str(q)+'_HR_results'): os.mkdir('HR'+str(q)+'_HR_results')
-if not os.path.exists('HR'+str(q)+'_HR_results/hr'): os.mkdir('HR'+str(q)+'_HR_results/hr')
-if not os.path.exists('HR'+str(q)+'_HR_results/lr'): os.mkdir('HR'+str(q)+'_HR_results/lr')
-if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_results/sr')
+# if not os.path.exists('HR'+str(q)+'_HR_results'): os.mkdir('HR'+str(q)+'_HR_results')
+# if not os.path.exists('HR'+str(q)+'_HR_results/hr'): os.mkdir('HR'+str(q)+'_HR_results/hr')
+# if not os.path.exists('HR'+str(q)+'_HR_results/lr'): os.mkdir('HR'+str(q)+'_HR_results/lr')
+# if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_results/sr')
+
+if not os.path.exists('Recovered'): os.mkdir('Recovered')
+
 
 gpu_id = 3
 
@@ -33,15 +36,15 @@ inf_loader = DataLoader(dataset=inf_set, num_workers=4, batch_size=1, shuffle=Fa
 
 cnt = 0
 
-for idx, (lr, hr) in enumerate(inf_loader):
-    lr, hr = lr.to(gpu_id)#, hr.to(gpu_id)
-    
+for idx, (lr, lr_name) in enumerate(inf_loader):
+    lr = lr.to(gpu_id)#, hr.to(gpu_id)
+    print(os.path.split(lr_name[0])[1])
     hr_hat = netG(lr)
     hr_hat = (F.tanh(hr_hat) + 1) / 2
     
     # save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
     # save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
-    save_image(hr_hat, 'HR'+str(q)+'_HR_results/sr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    save_image(hr_hat, 'Recovered/RECOVERED_' + os.path.split(lr_name[0])[1], nrow=1, padding=0)
     
     cnt += 1
 
