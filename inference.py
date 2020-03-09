@@ -24,14 +24,15 @@ q = 10
 # if not os.path.exists('HR'+str(q)+'_HR_results/lr'): os.mkdir('HR'+str(q)+'_HR_results/lr')
 # if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_results/sr')
 
-if not os.path.exists('Recovered'): os.mkdir('Recovered')
+if not os.path.exists('/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered'): os.mkdir('/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered')
 
 
-gpu_id = 3
+gpu_id = 0
 
-netG = torch.load('models/G_5000.pt').to(gpu_id)
+netG = torch.load('models/G_10000.pt').to(gpu_id)
 
-inf_set = MyDataLoader(hr_dir='/home/snikolaev/Artifacts/PNG/', lr_dir='/home/snikolaev/Artifacts/MIDI/', infer=True)
+inf_set = MyDataLoader(hr_dir='/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/MAXI',
+                       lr_dir='/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/MIDI/', infer=True)
 inf_loader = DataLoader(dataset=inf_set, num_workers=4, batch_size=1, shuffle=False)
 
 cnt = 0
@@ -44,7 +45,7 @@ for idx, (lr, lr_name) in enumerate(inf_loader):
     
     # save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
     # save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
-    save_image(hr_hat, 'Recovered/RECOVERED_' + os.path.split(lr_name[0])[1], nrow=1, padding=0)
+    save_image(hr_hat, '/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered/RECOVERED_' + os.path.split(lr_name[0])[1], nrow=1, padding=0)
     
     cnt += 1
 

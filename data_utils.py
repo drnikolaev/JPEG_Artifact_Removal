@@ -58,14 +58,15 @@ class MyDataLoader(Dataset):
     def __getitem__(self, idx):
 
         scale = 2
-        lsize = 300 if self.infer else 400
+        lsize = 400 if self.infer else 400
         lcc = CenterCrop((lsize, lsize))
 
         tt = ToTensor()
         if self.infer:
             hr = None
             lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
-            lr = tt(lcc(lr))
+            rsz = Resize((lr.height * scale, lr.width * scale), interpolation=Image.LANCZOS)
+            lr = tt(rsz(lr))
             return lr, self.lr_list[idx]
 
         # hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))

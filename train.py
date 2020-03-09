@@ -22,7 +22,7 @@ import torch.nn.functional as F
 # gpu_id = [0, 1, 2, 3]
 gpu_id = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_EPOCHS = 40
+NUM_EPOCHS = 100
 display = visualizer(port=8097)
 report_feq = 10
 
@@ -92,7 +92,7 @@ for epoch in range(1, NUM_EPOCHS):
         step += 1
         
         ########## Save Models ##########
-        if step % 5000 == 0:
+        if step % 1000 == 0:
             if not os.path.exists('models'): os.mkdir('models')
             torch.save(netG, 'models/G_'+str(step)+'.pt')
             torch.save(netD, 'models/D_'+str(step)+'.pt')
