@@ -19,15 +19,14 @@ import torch.nn.functional as F
 # import torch.device as device
 # import pytorch_ssim
 
-# gpu_id = [0, 1, 2, 3]
 gpu_id = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_EPOCHS = 100
+NUM_EPOCHS = 500
 display = visualizer(port=8097)
 report_feq = 10
 
 train_set = MyDataLoader(hr_dir='/home/snikolaev/Artifacts/MAXI/', lr_dir='/home/snikolaev/Artifacts/MIDI/')
-train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=2, shuffle=True)
+train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=1, shuffle=True)
 
 netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=1, norm_type=None, act_type='leakyrelu', \
                         mode='CNA', res_scale=1, upsample_mode='upconv')
@@ -44,14 +43,15 @@ optimizerD = optim.Adam(netD.parameters(), lr=0.0002)
 
 step = 0
 for epoch in range(1, NUM_EPOCHS):
-    netG.train(); netD.train()
+    netG.train();
+    netD.train()
 
     for idx, (lr, hr) in enumerate(train_loader):
         lr, hr = lr.to(gpu_id), hr.to(gpu_id)
 
         ############# Forward ###############
         # hr_hat = netG(lr)
-        hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1])
+        hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1, 2, 3])
         hr_hat = (F.tanh(hr_hat) + 1) / 2
 
         ############# Update D ###############
@@ -69,9 +69,7 @@ for epoch in range(1, NUM_EPOCHS):
         optimizerG.step()
         # hr_hat = netG(lr)
 
-        hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1])
-
-
+        hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1, 2, 3])
         hr_hat = (F.tanh(hr_hat) + 1) / 2
         
         if step % report_feq == 0:

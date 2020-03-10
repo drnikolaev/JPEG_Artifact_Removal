@@ -39,7 +39,7 @@ gpu_id = 0
 CROP_SIZE = 256
 UPSCALE_FACTOR = 2
 TEST_MODE = True 
-MODEL_NAME = 'G_37000.pt'
+MODEL_NAME = 'G_12000.pt'
 # model = Generator(UPSCALE_FACTOR).eval()
 # model.to(gpu_id)
 model = torch.load('models/' + MODEL_NAME)
@@ -84,7 +84,7 @@ if not os.path.exists(low_file): os.mkdir(low_file)
 if not os.path.exists(SR_file): os.mkdir(SR_file)
 
 cnt = 0
-for img_file in glob.glob('/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/MIDI/*.jpg'):
+for img_file in glob.glob('/home/snikolaev/JPEG_Artifact_Removal/verification/MIDI/*.jpg'):
     # img_file = 'high_big_picture/All_Hail_King_Julien_80018987_boxshot_USA_en_1_571x800_50_100.jpg'
     save_name = img_file.split('/')[-1]
     # pdb.set_trace()

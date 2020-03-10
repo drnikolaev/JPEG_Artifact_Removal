@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from PIL import Image
 from torch.utils.data.dataset import Dataset
 from torch.utils.data import DataLoader
@@ -23,15 +24,6 @@ class MyDataLoader(Dataset):
     def __init__(self, hr_dir, lr_dir, infer=False):
         super(MyDataLoader, self).__init__()
 
-        # n_imgs = 0
-        # for file in glob.glob(str(hr_dir)+'*.png'):
-        #     n_imgs += 1
-        #
-        # hr_list = []; lr_list = []
-        # for i in range(n_imgs):
-        #     hr_list.append(str(hr_dir)+str(i)+'.png')
-        #     lr_list.append(str(lr_dir)+str(i)+'.jpg')
-
         lr_list = []
         hr_list = []
         self.infer = infer
@@ -50,16 +42,12 @@ class MyDataLoader(Dataset):
                 hr_list.append(hr_file)
                 lr_list.append(file)
 
-        # self.transform = toTensor_transform()
-        # self.transform2 = toTensor_transform2()
         self.hr_list = hr_list
         self.lr_list = lr_list
         
     def __getitem__(self, idx):
-
         scale = 2
-        lsize = 400 if self.infer else 400
-        lcc = CenterCrop((lsize, lsize))
+        lsize = 400 if self.infer else 350
 
         tt = ToTensor()
         if self.infer:
@@ -69,26 +57,16 @@ class MyDataLoader(Dataset):
             lr = tt(rsz(lr))
             return lr, self.lr_list[idx]
 
-        # hr = self.transform2(Image.open(self.hr_list[idx]).convert(mode='RGB'))
-        # lr = self.transform(Image.open(self.lr_list[idx]).convert(mode='RGB'))
         hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
         lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
 
-        ratio = float(hr.width)/float(lr.width)
-        hsize = lsize #* scale
-        hccr = CenterCrop((hsize * ratio, hsize * ratio))
-        rsz = Resize((hsize), interpolation=Image.LANCZOS)
+        left = np.random.randint(low=0, high=lr.width-lsize if lr.width > lsize else 1)
+        top = np.random.randint(low=0, high=lr.height-lsize if lr.height > lsize else 1)
 
-
-        # print(hr.width, float(hr.width)/float(lr.width), float(hr.height)/float(lr.height), lr.width)
-
-        # hr = self.transform2(hr)
-        # lr = self.transform(lr)
-
-        hr = tt(rsz(hccr(hr)))
-        lr = tt(rsz(lcc(lr)))
-
-        return lr, hr
+        hr = hr.resize(size = (lr.width, lr.height), resample=Image.LANCZOS)
+        hr = hr.crop((left, top, left + lsize, top + lsize))
+        lr = lr.crop((left, top, left + lsize, top + lsize))
+        return tt(lr), tt(hr)
 
     def __len__(self):
         return len(self.lr_list)
@@ -98,9 +76,5 @@ train_set = MyDataLoader()
 train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=100, shuffle=True)
 
 for idx, (lr, hr) in enumerate(train_loader):
-    print(idx, lr.shape, hr.shape)
+print(idx, lr.shape, hr.shape)
 '''
-
-
-
-
