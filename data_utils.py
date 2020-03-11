@@ -27,12 +27,12 @@ class MyDataLoader(Dataset):
         lr_list = []
         hr_list = []
         self.infer = infer
-        if infer:
-            for file in glob.glob(str(lr_dir) + '*.jpg'):
-                lr_list.append(file)
-            self.lr_list = lr_list
-            self.hr_list = hr_list
-            return
+        # if infer:
+        #     for file in glob.glob(str(lr_dir) + '*.jpg'):
+        #         lr_list.append(file)
+        #     self.lr_list = lr_list
+        #     self.hr_list = hr_list
+        #     return
 
         for file in glob.glob(str(lr_dir) + '*.jpg'):
             hr_file = re.sub(r'MIDI', 'MAXI', file)
@@ -50,15 +50,17 @@ class MyDataLoader(Dataset):
         lsize = 400 if self.infer else 350
 
         tt = ToTensor()
-        if self.infer:
-            hr = None
-            lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
-            rsz = Resize((lr.height * scale, lr.width * scale), interpolation=Image.LANCZOS)
-            lr = tt(rsz(lr))
-            return lr, self.lr_list[idx]
+        # if self.infer:
+        #     hr = None
+        #     lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
+        #     rsz = Resize((lr.height * scale, lr.width * scale), interpolation=Image.LANCZOS)
+        #     lr = tt(rsz(lr))
+        #     return lr, self.lr_list[idx]
 
         hr = Image.open(self.hr_list[idx]).convert(mode='RGB')
         lr = Image.open(self.lr_list[idx]).convert(mode='RGB')
+
+        lr = lr.resize(size = (lr.width * scale, lr.height * scale), resample=Image.LANCZOS)
 
         left = np.random.randint(low=0, high=lr.width-lsize if lr.width > lsize else 1)
         top = np.random.randint(low=0, high=lr.height-lsize if lr.height > lsize else 1)

@@ -21,15 +21,17 @@ import torch.nn.functional as F
 
 gpu_id = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_EPOCHS = 500
+NUM_EPOCHS = 100
 display = visualizer(port=8097)
 report_feq = 10
 
 train_set = MyDataLoader(hr_dir='/home/snikolaev/Artifacts/MAXI/', lr_dir='/home/snikolaev/Artifacts/MIDI/')
-train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=1, shuffle=True)
+train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=4, shuffle=True)
 
+#netG = torch.load('models/G_12000.pt')
+#netD = torch.load('models/D_12000.pt')
 netG = arch.RRDB_Net(3, 3, 64, 6, gc=32, upscale=1, norm_type=None, act_type='leakyrelu', \
-                        mode='CNA', res_scale=1, upsample_mode='upconv')
+                         mode='CNA', res_scale=1, upsample_mode='upconv')
 netD = Discriminator()
 
 generator_criterion = GeneratorLoss()
@@ -43,7 +45,7 @@ optimizerD = optim.Adam(netD.parameters(), lr=0.0002)
 
 step = 0
 for epoch in range(1, NUM_EPOCHS):
-    netG.train();
+    netG.train()
     netD.train()
 
     for idx, (lr, hr) in enumerate(train_loader):
@@ -53,7 +55,6 @@ for epoch in range(1, NUM_EPOCHS):
         # hr_hat = netG(lr)
         hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1, 2, 3])
         hr_hat = (F.tanh(hr_hat) + 1) / 2
-
         ############# Update D ###############
         netD.zero_grad()
         real_out = netD(hr).mean()
@@ -69,8 +70,8 @@ for epoch in range(1, NUM_EPOCHS):
         optimizerG.step()
         # hr_hat = netG(lr)
 
-        hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1, 2, 3])
-        hr_hat = (F.tanh(hr_hat) + 1) / 2
+        # hr_hat = nn.parallel.data_parallel(netG, lr, device_ids=[0, 1, 2, 3])
+        # hr_hat = (F.tanh(hr_hat) + 1) / 2
         
         if step % report_feq == 0:
             # ssim = pytorch_ssim.ssim(hr, hr_hat)
@@ -84,7 +85,7 @@ for epoch in range(1, NUM_EPOCHS):
 
             display.plot_img_255(vis_high, win=1, caption='high')
             display.plot_img_255(vis_low,  win=2, caption='low')
-            display.plot_img_255(vis_recon,  win=3, caption='sr')
+            display.plot_img_255(vis_recon,  win=3, caption='recovered')
 
         print(epoch, step)
         step += 1

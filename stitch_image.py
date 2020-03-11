@@ -36,10 +36,10 @@ import numpy as np
 # from torchvision.utils import save_image
 
 gpu_id = 0
-CROP_SIZE = 256
+CROP_SIZE = 350
 UPSCALE_FACTOR = 2
 TEST_MODE = True 
-MODEL_NAME = 'G_12000.pt'
+MODEL_NAME = 'G_24000.pt'
 # model = Generator(UPSCALE_FACTOR).eval()
 # model.to(gpu_id)
 model = torch.load('models/' + MODEL_NAME)
@@ -134,7 +134,7 @@ for img_file in glob.glob('/home/snikolaev/JPEG_Artifact_Removal/verification/MI
 
     # img_2x=pil(img_2x)
     # img_2x=pil(ttt(img_2x))
-    img_2x=Image.fromarray((img_2x * 256.).astype(np.uint8))
+    img_2x=Image.fromarray((img_2x * 255.).astype(np.uint8))
     # img_2x.show()
     img_1x=img_2x.resize((img_2x.width // UPSCALE_FACTOR, img_2x.height // UPSCALE_FACTOR), resample=Image.LANCZOS)
     # img_1x=Image.fromarray(img_2x.resize((img_2x.shape[1] // UPSCALE_FACTOR, img_2x.shape[0] // UPSCALE_FACTOR), resample=Image.LANCZOS).astype(np.uint8))
