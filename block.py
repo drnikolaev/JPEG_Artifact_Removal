@@ -224,10 +224,10 @@ class RRDB(nn.Module):
             norm_type, act_type, mode)
 
     def forward(self, x):
-        out = self.RDB1(x)
-        out = self.RDB2(out)
-        out = self.RDB3(out)
-        return out.mul(0.2) + x
+        # out = self.RDB1(x)
+        # out = self.RDB2(self.RDB1(x))
+        # out = self.RDB3(self.RDB2(self.RDB1(x)))
+        return self.RDB3(self.RDB2(self.RDB1(x))).mul(0.2) + x
 
 
 ####################

@@ -19,29 +19,33 @@ import os
 
 q = 10
 
-if not os.path.exists('HR'+str(q)+'_HR_results'): os.mkdir('HR'+str(q)+'_HR_results')
-if not os.path.exists('HR'+str(q)+'_HR_results/hr'): os.mkdir('HR'+str(q)+'_HR_results/hr')
-if not os.path.exists('HR'+str(q)+'_HR_results/lr'): os.mkdir('HR'+str(q)+'_HR_results/lr')
-if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_results/sr')
+# if not os.path.exists('HR'+str(q)+'_HR_results'): os.mkdir('HR'+str(q)+'_HR_results')
+# if not os.path.exists('HR'+str(q)+'_HR_results/hr'): os.mkdir('HR'+str(q)+'_HR_results/hr')
+# if not os.path.exists('HR'+str(q)+'_HR_results/lr'): os.mkdir('HR'+str(q)+'_HR_results/lr')
+# if not os.path.exists('HR'+str(q)+'_HR_results/sr'): os.mkdir('HR'+str(q)+'_HR_results/sr')
 
-gpu_id = 3
+if not os.path.exists('/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered'): os.mkdir('/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered')
 
-netG = torch.load('models/G_280000.pt').to(gpu_id)
 
-train_set = MyDataLoader(lap_hr_dir='../data/test_face_patch/HR_PNG/', lap_lp_dir='../data/test_face_patch/HR_JPEG/10/')
-train_loader = DataLoader(dataset=train_set, num_workers=4, batch_size=1, shuffle=True)
+gpu_id = 0
+
+netG = torch.load('models/G_10000.pt').to(gpu_id)
+
+inf_set = MyDataLoader(hr_dir='/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/MAXI',
+                       lr_dir='/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/MIDI/', infer=True)
+inf_loader = DataLoader(dataset=inf_set, num_workers=4, batch_size=1, shuffle=False)
 
 cnt = 0
 
-for idx, (lr, hr) in enumerate(train_loader):
-    lr, hr = lr.to(gpu_id), hr.to(gpu_id)
-    
+for idx, (lr, lr_name) in enumerate(inf_loader):
+    lr = lr.to(gpu_id)#, hr.to(gpu_id)
+    print(os.path.split(lr_name[0])[1])
     hr_hat = netG(lr)
     hr_hat = (F.tanh(hr_hat) + 1) / 2
     
-    save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
-    save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
-    save_image(hr_hat, 'HR'+str(q)+'_HR_results/sr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    # save_image(hr, 'HR'+str(q)+'_HR_results/hr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    # save_image(lr, 'HR'+str(q)+'_HR_results/lr/'+str(cnt)+'.jpg', nrow=1, padding=0)
+    save_image(hr_hat, '/home/snikolaev/CODE/JPEG_Artifact_Removal/verification/Recovered/RECOVERED_' + os.path.split(lr_name[0])[1], nrow=1, padding=0)
     
     cnt += 1
 
